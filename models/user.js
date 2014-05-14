@@ -104,7 +104,7 @@ User.update = function(Q, H, callback) {
 };
 
 User.findOneAndUpdate = function(Q, H, callback) {
-  users.findOneAndUpdate(Q, H, {select: sl}, function(err, user){
+  users.findOneAndUpdate(Q, H, {select: sl, new: false}, function(err, user){
     if (err) {
       console.log('User.findOneAndUpdate failed!');
     }

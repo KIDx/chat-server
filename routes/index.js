@@ -129,13 +129,11 @@ exports.updateImg = function(req, res) {
 	}
 	var name = req.body.name
 	,	format = req.body.format;
-	User.findOneAndUpdate({name: req.session.user.name}, {$set: {img: name, imgFormat: format}}, function(err, user){
+	User.findOneAndUpdate({name: req.session.user.name}, {$set: {img: name, imgFormat: format}}, function(err){
 		if (err) {
 			console.log(err);
 			return res.end('e');
 		}
-		console.log(user);
-		req.session.user = user;
 		return res.end();
 	});
 };

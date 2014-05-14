@@ -93,7 +93,7 @@ function addFriend(a, b) {
 }
 
 function removeFriend(a, b) {
-	User.findOneAndUpdate({name: a}, {$pull: {friends: b}}, function(err, user){
+	User.findOneAndUpdate({name: a}, {$pull: {friends: b}}, function(err){
 		if (err) {
 			console.log(err);
 			return ;
@@ -240,17 +240,24 @@ io.sockets.on('connection', function(socket) {
 		if (nan(sex) || nan(birthday)) {
 			return ;
 		}
-		User.update({name: name}, {$set: {
+		var info = {
 			nick: String(data.nick),
-			signature: String(data.sig),
+			signature: String(data.signature),
 			sex: sex,
 			birthday: birthday,
 			city: String(data.city)
-		}}, function(err){
+		};
+		User.findOneAndUpdate({name: name}, {$set: info}, function(err, user){
 			if (err) {
 				console.log(err);
 				fn(false);
 			} else {
+				if (user.signature != info.signature) {
+					io.sockets.in(name).json.send({type: 2, from: name, msg: info.signature});
+				}
+				if (user.nick != info.nick) {
+					io.sockets.in(name).json.send({type: 12, from: name, msg: info.nick});
+				}
 				fn(true);
 			}
 		});
