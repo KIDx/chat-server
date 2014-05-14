@@ -3,6 +3,10 @@
  * Module dependencies.
  */
 
+function nan(n) {
+	return n != n;
+}
+
 var express = require('express')
 ,	routes = require('./routes')
 ,	http = require('http')
@@ -169,7 +173,7 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('message', function(data, fn){
 		var type = parseInt(data.type, 10);
-		if (type != type || type == 6) {
+		if (nan(type) || type == 6) {
 			return ;
 		}
 		var res = { type: type, from: name, msg: data.msg }, save = false, send = true;
@@ -228,6 +232,28 @@ io.sockets.on('connection', function(socket) {
 		} else {
 			io.sockets.in(name).json.send(res);
 		}
+	});
+
+	socket.on('changeInfo', function(data, fn){
+		var sex = parseInt(data.sex, 10)
+		,	birthday = parseInt(data.birthday, 10);
+		if (nan(sex) || nan(birthday)) {
+			return ;
+		}
+		User.update({name: name}, {$set: {
+			nick: String(data.nick),
+			signature: String(data.sig),
+			sex: sex,
+			birthday: birthday,
+			city: String(data.city)
+		}}, function(err){
+			if (err) {
+				console.log(err);
+				fn(false);
+			} else {
+				fn(true);
+			}
+		});
 	});
 
 	socket.on('disconnect', function(){
