@@ -235,13 +235,14 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('changeInfo', function(data, fn){
-		var sex = parseInt(data.sex, 10)
+		var nick = String(data.nick)
+		,	sex = parseInt(data.sex, 10)
 		,	birthday = parseInt(data.birthday, 10);
-		if (nan(sex) || nan(birthday)) {
+		if (!nick || nick.length > 24 || nan(sex) || nan(birthday) || !birthday) {
 			return ;
 		}
 		var info = {
-			nick: String(data.nick),
+			nick: nick,
 			signature: String(data.signature),
 			sex: sex,
 			birthday: birthday,
