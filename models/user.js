@@ -76,8 +76,8 @@ User.find = function(Q, callback){
   });
 };
 
-User.get = function(Q, page, callback) {
-  users.find(Q).select(sl).sort({regTime: -1}).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
+User.get = function(Q, callback) {
+  users.find(Q).select(sl).sort({regTime: -1}).limit(pageNum).exec(function(err, docs){
     if (err) {
       console.log('User.get failed!');
     }
