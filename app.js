@@ -7,6 +7,25 @@ function nan(n) {
 	return n != n;
 }
 
+function CheckEscape(ch) {
+  if (ch == '$' || ch == '(' || ch == ')' || ch == '*' || ch == '+' ||
+      ch == '.' || ch == '[' || ch == ']' || ch == '?' || ch == '\\' ||
+      ch == '^' || ch == '^' || ch == '{' || ch == '}' || ch == '|')
+    return true;
+  return false;
+}
+
+function toEscape(str) {
+  var res = '';
+  for (var i = 0; i < str.length; i++) {
+    if (CheckEscape(str.charAt(i))) {
+    	res += '\\';
+    }
+    res += str.charAt(i);
+  }
+  return res;
+}
+
 var express = require('express')
 ,	routes = require('./routes')
 ,	http = require('http')
@@ -54,7 +73,6 @@ app.post('/login', routes.login);
 app.post('/logout', routes.logout);
 app.post('/updateSig', routes.updateSig);
 app.post('/updateImg', routes.updateImg);
-app.post('/find', routes.find);
 app.post('/addFriend', routes.addFriend);
 
 mongoose.connect(config.dburl);
@@ -235,6 +253,9 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('changeInfo', function(data, fn){
+		if (!data) {
+			return ;
+		}
 		var nick = String(data.nick)
 		,	sex = parseInt(data.sex, 10)
 		,	birthday = parseInt(data.birthday, 10);
@@ -251,16 +272,33 @@ io.sockets.on('connection', function(socket) {
 		User.findOneAndUpdate({name: name}, {$set: info}, function(err, user){
 			if (err) {
 				console.log(err);
-				fn(false);
-			} else {
-				if (user.signature != info.signature) {
-					io.sockets.in(name).json.send({type: 2, from: name, msg: info.signature});
-				}
-				if (user.nick != info.nick) {
-					io.sockets.in(name).json.send({type: 12, from: name, msg: info.nick});
-				}
-				fn(true);
+				return fn(false);
 			}
+			if (user.signature != info.signature) {
+				io.sockets.in(name).json.send({type: 2, from: name, msg: info.signature});
+			}
+			if (user.nick != info.nick) {
+				io.sockets.in(name).json.send({type: 12, from: name, msg: info.nick});
+			}
+			fn(true);
+		});
+	});
+
+	socket.on('find', function(data, fn){
+		if (!data) {
+			return ;
+		}
+		var query = String(data.query);
+		var q1 = {}, q2 = {}, q3 = {};
+		if (query) {
+			q1.name = q2.nick = q3.city = new RegExp("^.*"+toEscape(query)+".*$", 'i');
+		}
+		User.get({$or: [q1, q2, q3]}, function(err, users){
+			if (err) {
+				console.log(err);
+				return fn(false);
+			}
+			fn(users);
 		});
 	});
 

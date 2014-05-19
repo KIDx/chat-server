@@ -138,24 +138,6 @@ exports.updateImg = function(req, res) {
 	});
 };
 
-exports.find = function(req, res) {
-	res.header('Content-Type', 'text/plain');
-	if (!req.session.user) {
-		return res.end();	//illegal
-	}
-	var Q = {}, page = parseInt(req.body.page, 10);
-	if (!page) {
-		return res.end('n');
-	}
-	User.get(Q, page, function(err, users){
-		if (err) {
-			console.log(err);
-			return res.end('e');
-		}
-		return res.json(users);
-	});
-};
-
 exports.addFriend = function(req, res) {
 	res.header('Content-Type', 'text/plain');
 	if (!req.session.user) {
