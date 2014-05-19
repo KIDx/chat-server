@@ -42,6 +42,8 @@ var app = express()
 ,	sessionStore = new MongoStore({ db : config.db })
 ,	socketID = {};
 
+var PeerServer = new require('peer').PeerServer({port: 9000, path: '/cc_cat'});
+
 // all environments
 app.set('port', process.env.PORT || 5000);
 //app.set('views', path.join(__dirname, 'views'));

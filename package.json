@@ -10,6 +10,7 @@
     "mongodb": "*",
     "mongoose": "*",
     "connect-mongo": "*",
-    "socket.io": "*"
+    "socket.io": "*",
+    "peer": "*"
   }
 }
